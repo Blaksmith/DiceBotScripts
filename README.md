@@ -1,5 +1,5 @@
 # DiceBotScripts
-Misc scripts I have written for DiceBot
+Misc scripts I have written or modified for DiceBot
 
 Faucetors-idea.lua
 	Martingale type, which ignores the first X amount of losses before starting to do a martingale.
