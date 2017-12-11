@@ -16,15 +16,24 @@ enablesrc=false -- set to true to use stop/reset conditions
 
 -- constants
 
-basebet = 1
+minbet = 0.00000001 -- Set this according to the coin / token you are on!
+restTime = 0.0 -- How long to wait in seconds before the next bet.  Some sites need this
+ 
+basebet = 0.00000001
 nextbet=basebet
-chance=39.6
-paniclevel = 7 -- where we try to recover
+basechance=34.75 -- changed by Blaksmith
+paniclevel = 5 -- where we try to recover
 panicflag = 0
 prevbet = basebet
 
-panicReset = 4 -- Set this to how many times it can roll after hitting panic, before completely resetting
+
+-- Added by Blaksmith
+dynamicBase = true -- Set this to false to *not* calculate the base bet according to your balance
+smoothPanic = false -- Set this to false to *not* raise the chance to soften the blow before resetting completely.
+panicReset = 50 -- Set this to how many times it can roll after hitting panic, before completely resetting
 panicCounter = 0
+panicOffset = 1.0 -- Increment chance by this much on every loss beyond paniclevel  
+-- End Added by Blaksmith
 
 onwin = -2
 onlose = 1
@@ -33,6 +42,14 @@ currbet=basebet
 
 panicnumber = 1 -- this too
 i=0
+
+-- Added by Blaksmith
+local clock = os.clock
+function sleep(n)  -- seconds
+	local t0 = clock()
+	while clock() - t0 <= n do end
+end
+-- End Added by Blaksmith
 
 function myfib(level)
 	fibno=basebet
@@ -53,23 +70,34 @@ end
 
 -- initialization
 function initialize()
+	if dynamicBase == true then
+		basebet = balance / 600000
+		if basebet < minbet then
+			basebet = minbet
+		end
+	end
 	panicnumber=basebet
 	nextbet = basebet
+	chance = basechance -- Added by Blaksmith
 	temp=0
 	prevtemp=0
 	fibdex=0
 
 	panicnumber=myfib(paniclevel)
 
-	print ("")
-	print("panicnumber:")
-	print(panicnumber)
-	print ("")
+	tempstr = "Panic Number: panicnumber"
+	tempcalc = string.format("%.8f", panicnumber)
+	tempstr = string.gsub(tempstr, "panicnumber", tempcalc)
+
+	print (tempstr)
+	-- print("panicnumber:")
+	-- print(panicnumber)
+	-- print ("")
 	
 	highLowAverage = {}
 	averageCount = 0
 	averageIndex = 0
-	averageMax = 8 -- High / Low average switching.  How many rolls do you want to average? 
+	averageMax = panicReset -- High / Low average switching. 
 	
 	rollCount = 0
 	rollSeedCount = 0
@@ -86,6 +114,15 @@ end
 initialize()
 
 function dobet()
+
+	if dynamicBase == true then
+		basebet = balance / 600000
+		if basebet < minbet then
+			basebet = minbet
+		end
+		myfib(paniclevel)
+	end
+
 
 	if win then
 	
@@ -107,6 +144,7 @@ function dobet()
 		end
 		panicCounter=0
 		panicflag=0
+		chance = basechance
 		
 	else -- if lose
 		-- print("lose")
@@ -116,21 +154,30 @@ function dobet()
 		end
 		fibdex=fibdex+onlose
 		nextbet=myfib(fibdex)
-		
+
+-- Added by Blaksmith		
 		if panicflag == 1 then
 			panicCounter += 1
+			if smoothPanic == true then
+				chance += panicOffset -- Needs to be tweaked. 
+			end
 		end
+
 		if panicCounter >= panicReset then -- Completely reset
 			nextbet = basebet
 			fibdex=0
 			panicflag = 0
-			panicCounter = 0
+			chance = basechance
+			panicCounter = 0 -- Added by Blaksmith
 			print("Too many panic rolls!  Resetting!")
 		end
+-- End Added by Blaksmith
+
 	end
 	
 	prevbet=nextbet
-	
+
+-- Added by Blaksmith	
 	-- Calculate the average, and then change high / low accordingly
 	if(lastBet.Roll >= 50) then
 		highLowAverage[averageIndex] = 1	
@@ -155,5 +202,7 @@ function dobet()
 	else
 		bethigh = false
 	end
+-- End Added by Blaksmith
+	sleep(restTime)
 
 end
