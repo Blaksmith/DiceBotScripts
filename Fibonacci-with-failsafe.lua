@@ -115,15 +115,6 @@ initialize()
 
 function dobet()
 
-	if dynamicBase == true then
-		basebet = balance / 600000
-		if basebet < minbet then
-			basebet = minbet
-		end
-		myfib(paniclevel)
-	end
-
-
 	if win then
 	
 		-- print("win")
@@ -141,6 +132,13 @@ function dobet()
 			end
 			
 			nextbet=myfib(fibdex)
+		end
+		if dynamicBase == true then
+			basebet = balance / 600000
+			if basebet < minbet then
+				basebet = minbet
+			end
+			myfib(paniclevel)
 		end
 		panicCounter=0
 		panicflag=0
