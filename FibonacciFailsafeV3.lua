@@ -134,7 +134,7 @@ function dobet()
 			nextbet=myfib(fibdex)
 		end
 		if dynamicBase == true then
-			basebet = balance / dynstep
+			basebet = balance / dynStep
 			if basebet < minbet then
 				basebet = minbet
 			end
