@@ -29,7 +29,7 @@ prevbet = basebet
 fibstep = 1.0 -- step multiplier. change to 1 for classic fibonacci sequence.
 				  -- can also enter: fibstep = x.xx while it is running to take a bigger risk!
 
-
+dynStep = 600000 --determines dynamic bet. bet = balance / dynStep
 -- Added by Blaksmith
 dynamicBase = true -- Set this to false to *not* calculate the base bet according to your balance
 smoothPanic = false -- Set this to false to *not* raise the chance to soften the blow before resetting completely.
@@ -74,7 +74,7 @@ end
 -- initialization
 function initialize()
 	if dynamicBase == true then
-		basebet = balance / 600000
+		basebet = balance / dynStep
 		if basebet < minbet then
 			basebet = minbet
 		end
@@ -134,7 +134,7 @@ function dobet()
 			nextbet=myfib(fibdex)
 		end
 		if dynamicBase == true then
-			basebet = balance / 600000
+			basebet = balance / dynstep
 			if basebet < minbet then
 				basebet = minbet
 			end
