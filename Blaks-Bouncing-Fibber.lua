@@ -10,7 +10,7 @@ housePercent = 5 -- Set this according to the site you are on.
 -- Known site percentages
 -- Freebitco.in = 5%
 -- Bitsler = 1.5%
--- Bitvest = 1.5% 
+-- Bitvest = 1.5% [Note from Jim: i think this is 1% not 1.5%]
 
 fibstep = 0.1125 -- Fibonacci stepping amount
 chanceStep = 0.01 -- Chance stepping amount 
