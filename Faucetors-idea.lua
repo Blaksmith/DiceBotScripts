@@ -2,10 +2,14 @@
 -- For seintjie's dicebot, developed on v3.3.9
 -- jreinsch@gmail.com
 -- Be a bro: BTC 1JP3tHhToThgS81Wu8P8wD7Ymu29YB3upT
+--
+-- Modified by Blaksmith
 
 chance=20 --sets your chance for placing a bet
-basebet = 1
+basebet = 0.00000001
 
+basegambit = 0.00000010 
+fibstep = 0.1125
 
 nextbet=basebet -- sets your first bet.
 
@@ -32,6 +36,24 @@ function sleep(n)  -- seconds
 	while clock() - t0 <= n do end
 end
 
+function myfib(level)
+	fibno=basegambit
+	temp=0
+	prevfibno=0
+	if level == 0 then
+		fibno= basebet
+	else
+		for j=0,level-1,1 do
+			
+			temp=fibno
+			fibno=fibno + (prevfibno * fibstep)
+			prevfibno=temp
+		end
+	end
+	return fibno	
+end
+
+
 function dobet()
 
 	if win then
@@ -53,12 +75,14 @@ function dobet()
 				gambit = 1
 				gambitcount=1
 				gambitmult = gambitmult + 1
-				nextbet = basebet * (multiplier^gambitmult)
+				nextbet = myfib(gambitcount)
+				-- nextbet = basebet * (multiplier^gambitmult)
 				losscount = 0 -- primed for after the gambit
 			end
 		else -- lose, gambit roll
 			if gambitcount<gambitlimit and waitforwin == 0 then -- next bet is another gambit
 				gambitcount = gambitcount + 1
+				nextbet = myfib(gambitcount)
 			else -- gambit set over; go back to base bet but preserve gambitmult
 				nextbet = basebet
 				gambitcount = 0
