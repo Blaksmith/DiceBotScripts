@@ -2,11 +2,14 @@
 -- constants
 
 minbet = 0.00000001 -- Set this according to the coin / token you are on!
-restTime = 0.0 -- How long to wait in seconds before the next bet.  Some sites need this
+autotune = true -- Set to false to use static settings below
+
+restTime = 0.7 -- How long to wait in seconds before the next bet.  Some sites need this
+			   -- Bitvest setting 0.7 for low bet values
  
 basebet = 0.00000001
-basechance=7 -- The chance that you would like use.  7 seems to be a good starting point
-housePercent = 5 -- Set this according to the site you are on.
+basechance=5 -- The chance that you would like use.  7 seems to be a good starting point
+housePercent = 1.0 -- Set this according to the site you are on.
 -- Known site percentages
 -- Freebitco.in = 5%
 -- Bitsler = 1.5%
@@ -37,8 +40,17 @@ for i=0, averageMax do
 	highLowAverage[i] = 0
 end
 
-chance = basechance
-nextbet=basebet
+function autocalc()
+	if(autotune == true) then
+		if(lossCount == 0) then
+			basebet = balance / 100000
+			basebet = basebet / (10 - basechance)
+			if basebet < minbet then
+				basebet = minbet
+			end
+		end
+	end
+end
 
 -- The myfib routine was written by CttCJim 
 function myfib(level)
@@ -59,8 +71,14 @@ function myfib(level)
 end
 -- End The myfib routine was written by CttCJim 
 
+autocalc()
+chance = basechance
+nextbet=basebet
+
 function dobet()
 
+	autocalc()
+	
 	if win then
 		chance = basechance
 		lossCount = 0 -- reset
