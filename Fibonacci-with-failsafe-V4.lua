@@ -5,6 +5,7 @@
 -- Future versions may aim for a particular balance and incorporate minimum balances.
 -- no-bs-faucet.com has more info and if you want to tip me, just head there!
 -- Update: This version has truncating on bet numbers. It is the one I used to get from 82k to a million. The only thing you need to change is dynstep (and basebet/minbet if you are not using bitvest tokens) -Jim
+--edit: use spreadsheet at https://1drv.ms/x/s!Amlo2a1NV-jnjQgnk3iZbFVpsAmh and set A2 to 1, then set dynstep to slightly over one of the values in column B.
 
 -- bethigh=true -- bet high when true, bet low when false
 
