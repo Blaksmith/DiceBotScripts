@@ -18,8 +18,9 @@ enablesrc=true -- set to true to use stop/reset conditions
 
 -- constants
 
-minbet = 1 -- Set this according to the coin / token you are on!
-restTime = 0.5 -- How long to wait in seconds before the next bet.  Some sites need this
+satoshival=0.00000001 -- minimum increment of the coin
+minbet = 0.00000001 -- Set this according to the site you are on
+restTime = 0.75 -- How long to wait in seconds before the next bet.  Some sites need this.
 
 basebet = 1
 nextbet=basebet
@@ -31,7 +32,7 @@ prevbet = basebet
 fibstep = 0.75 -- step multiplier. change to 1 for classic fibonacci sequence.
                                                                   -- can also enter: fibstep = x.xx while it is running to take a bigger risk!
 
-dynStep = 191750 --determines dynamic bet. bet = balance / dynStep
+dynStep = 191750*satoshival --determines dynamic bet. bet = balance / dynStep
 -- Added by Blaksmith
 dynamicBase = true  -- Set this to false to *not* calculate the base bet according to your balance
 smoothPanic = false -- Set this to false to *not* raise the chance to soften the blow before resetting completely.
@@ -80,9 +81,9 @@ end
 function initialize()
                 if dynamicBase == true then
                                 --basebet = balance / dynStep
-								remainder = balance % dynStep
-								decimal = remainder / dynStep
-								basebet = balance / dynStep - decimal
+								
+								decimal = balance % dynStep / dynStep
+								basebet = (balance / dynStep - decimal)*satoshival
                                 
 								if basebet < minbet then
                                                 basebet = minbet
@@ -144,9 +145,8 @@ function dobet()
                                 end
                                 if dynamicBase == true then
                                                 --basebet = balance / dynStep
-												remainder = balance % dynStep
-												decimal = remainder / dynStep
-												basebet = balance / dynStep - decimal
+						decimal = balance % dynStep / dynStep
+						basebet = (balance / dynStep - decimal)*satoshival
                                                 if basebet < minbet then
                                                                 basebet = minbet
                                                 end
