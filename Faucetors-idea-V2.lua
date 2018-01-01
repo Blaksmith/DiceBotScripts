@@ -77,11 +77,13 @@ function dobet()
 				waitforwin = 0
 				streakStartBalance = 0
 			else -- continue gambit
+				gambit = 0
 				previouscount -= 1
 				if(previouscount < 1) then
 					previouscount = 1
 				end
-				nextbet = myfib(previouscount)
+				nextbet = basebet 
+				-- nextbet = myfib(previouscount)
 			end
 		end
 	else -- lost last roll
