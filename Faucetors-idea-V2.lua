@@ -4,17 +4,18 @@
 -- Be a bro: BTC 1JP3tHhToThgS81Wu8P8wD7Ymu29YB3upT
 --
 -- Modified by Blaksmith
+-- Donations welcome: 1BLAKSMTjnME4ZJX7VzzUyEgbQYLShvqgi
 
 isTokens = false -- Set to false for satoshi betting, true for tokens 
 
-basechance=20 	--sets your chance for placing a bet
+basechance=33.3 	--sets your chance for placing a bet
 basebet = 1		-- Base bet in whole numbers.
-basegambit = 10 -- base gambit section betting in whole numbers
+basegambit = 5 -- base gambit section betting in whole numbers
 
-prerolllimit = 4 -- length of loss set before gambit
-gambitlimit = 2 -- number of gambit bets to make
+prerolllimit = 3 -- length of loss set before gambit
+gambitlimit = 3 -- number of gambit bets to make
 
-fibstep = 0.1125 -- Stepping for the fibonacci bet increments
+fibstep = 0.0975 -- Stepping for the fibonacci bet increments
 
 rollDelay = 0.7 -- Sleep period in seconds.  Some sites need this
 
