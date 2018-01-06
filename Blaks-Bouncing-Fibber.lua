@@ -13,7 +13,7 @@ housePercent = 5.0 -- Set this according to the site you are on.
 -- Known site percentages
 -- Freebitco.in = 5%
 -- Bitsler = 1.5%
--- Bitvest = 1.5% [Note from Jim: i think this is 1% not 1.5%]
+-- Bitvest = 1.0% 
 
 fibstep = 0.0925 -- Fibonacci stepping amount
 chanceStep = 0.01 -- Chance stepping amount 
@@ -21,7 +21,7 @@ chanceStep = 0.01 -- Chance stepping amount
 enableLogging = true -- Set to false for no logging
 filename = "bouncer.csv" -- Default to the directory where dicebot is run from.
 tempfile = "tempfile.log" -- You can add an absolute directory if wanted with: C:\directory etc
-rollLog = 50 -- Use 0 for dynamic logging, otherwise put in a value to log after X losing streak
+rollLog = 50 -- Use 0 for dynamic long streak logging, otherwise put in a value to log after X losing streak
 
 local clock = os.clock
 function sleep(n)  -- seconds
@@ -44,7 +44,7 @@ profit = 0
 
 if(enableLogging == true) then
 	fin = assert(io.open(filename, "w"))
-	fin:write("Timestamp, Streak, Bet, Chance, fibstep, Spent, Win Amount, Win Profit\n")
+	fin:write("Timestamp, Bet ID, Streak, Bet, Chance, fibstep, Spent, Win Amount, Win Profit\n")
 	fin:close()
 end
 	
@@ -99,7 +99,7 @@ function dobet()
 		end
 		-- print(logTest)
 		if(enableLogging == true and lossCount >= logTest) then
-			tempstr = "year-0month-0day 0hour:0minute:0second, streak, bet, chance, fibstep, spent, winamount, profit\n"
+			tempstr = "year-0month-0day 0hour:0minute:0second, betid, streak, bet, chance, fibstep, spent, winamount, profit\n"
 			tempstr = string.gsub(tempstr, "year", lastBet.date.year)
 			if (lastBet.date.month >= 10) then tempstr = string.gsub(tempstr, "0month", "month") end 	
 			if (lastBet.date.day >= 10) then tempstr = string.gsub(tempstr, "0day", "day") end 	
@@ -110,7 +110,8 @@ function dobet()
 			tempstr = string.gsub(tempstr, "day", lastBet.date.day)			
 			tempstr = string.gsub(tempstr, "hour", lastBet.date.hour)			
 			tempstr = string.gsub(tempstr, "minute", lastBet.date.minute)			
-			tempstr = string.gsub(tempstr, "second", lastBet.date.second)			
+			tempstr = string.gsub(tempstr, "second", lastBet.date.second)
+			tempstr = string.gsub(tempstr, "betid", lastBet.Id)
 			tempstr = string.gsub(tempstr, "streak", lossCount)
 			tempcalc = string.format("%.8f", nextbet)
 			tempstr = string.gsub(tempstr, "bet", tempcalc)
@@ -154,7 +155,7 @@ function dobet()
 			chance += chanceStep
 			nextbet = myfib(stepCount)  
 		end
-		if nextbet > balance then -- do something
+		if nextbet >= balance then -- Keep rolling, without completely busting.  May add flag to disable
 			nextbet = balance / 2 -- Don't completely bust, but try and recover something
 		end
 	end
