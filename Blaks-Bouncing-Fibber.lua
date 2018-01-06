@@ -20,7 +20,7 @@ fibstep = 0.0925 -- Fibonacci stepping amount
 chanceStep = 0.01 -- Chance stepping amount 
 
 enableLogging = true -- Set to false for no logging
-apppendlog = true -- This must be set to false for the very first run!
+appendlog = true -- This must be set to false for the very first run!
 filename = "bouncer.csv" -- Default to the directory where dicebot is run from.
 tempfile = "tempfile.log" -- You can add an absolute directory if wanted with: C:\directory etc
 rollLog = 50 -- Use 0 for dynamic long streak logging, otherwise put in a value to log after X losing streak
