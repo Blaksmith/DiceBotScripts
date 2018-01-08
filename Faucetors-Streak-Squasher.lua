@@ -7,14 +7,14 @@
 
 isTokens = false -- Set to false for satoshi betting, true for tokens 
 basechance = 49.5 	-- sets your chance for placing a bet
-basebet = 2		-- Base bet in whole numbers.
+basebet = 1		-- Base bet in whole numbers.
 resetbasebet = 1 -- amount to bet while waiting for win this should pretty much always be 1
-fibstep = .755 -- Stepping for the fibonacci bet increments
+fibstep = .75 -- Stepping for the fibonacci bet increments
 LossStreakMax = 4 -- how many losses in a row before switching to reset mode
 
 recoverychance = 49.5 -- sets your chance during recovery mode
-recoverybasebet = 2 -- Base bet for loss streak recover in whole numbers
-recoveryfibstep = .755 --Stepping for the fibonacci bet increments for recovery mode
+recoverybasebet = 1.5 -- Base bet for loss streak recover in whole numbers
+recoveryfibstep = .775 --Stepping for the fibonacci bet increments for recovery mode
 recoveryLossStreakMax = 999 -- sets losses in a row before abandoning recovery mode - can set really high to effectively disable
                           -- Note recovery mode will automatically turn off if successful
 rollDelay = 0.7 -- Sleep period in seconds.  Some sites need this						  
