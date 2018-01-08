@@ -2,20 +2,20 @@
 -- Special thanks to CttCJim & Blaksmith - the code is heavily leveraged from their scripts
 -- If you win a bunch with this and...
 -- 	You want to tip Jim BTC:			1JP3tHhToThgS81Wu8P8wD7Ymu29YB3upT
--- 	You want to tip Blaksmith BTC: 	1BLAKSMTjnME4ZJX7VzzUyEgbQYLShvqgi
+-- 	You want to tip Blaksmith BTC: 		1BLAKSMTjnME4ZJX7VzzUyEgbQYLShvqgi
 --		You want to tip Faucetor LTC: 	LYEKMdAdAh2BKo2uSxVBoPsax3mdoeKTrL
 
 isTokens = false -- Set to false for satoshi betting, true for tokens 
-basechance = 47.0 	--sets your chance for placing a bet
-basebet = 1		-- Base bet in whole numbers.
+basechance = 49.5 	-- sets your chance for placing a bet
+basebet = 2		-- Base bet in whole numbers.
 resetbasebet = 1 -- amount to bet while waiting for win this should pretty much always be 1
-fibstep = .075 -- Stepping for the fibonacci bet increments
-LossStreakMax = 3 -- how many losses in a row before switching to recovery mode
+fibstep = .755 -- Stepping for the fibonacci bet increments
+LossStreakMax = 4 -- how many losses in a row before switching to reset mode
 
-recoverychance = 50 -- sets your chance during recovery mode
-recoverybasebet = 2	-- Base bet for loss streak recover in whole numbers
-recoveryfibstep = .085 --Stepping for the fibonacci bet increments for recovery mode
-recoveryLossStreakMax = 6 -- sets losses in a row before abandoning recovery mode - can set really high to effectively disable
+recoverychance = 49.5 -- sets your chance during recovery mode
+recoverybasebet = 2 -- Base bet for loss streak recover in whole numbers
+recoveryfibstep = .755 --Stepping for the fibonacci bet increments for recovery mode
+recoveryLossStreakMax = 999 -- sets losses in a row before abandoning recovery mode - can set really high to effectively disable
                           -- Note recovery mode will automatically turn off if successful
 rollDelay = 0.7 -- Sleep period in seconds.  Some sites need this						  
 
@@ -23,7 +23,8 @@ rollDelay = 0.7 -- Sleep period in seconds.  Some sites need this
 nextbet = basebet -- sets your first bet.
 chance = basechance -- sets the chance to play at
 stepcount = 0 -- stepcounter for basebet fibonacci
-Streakstartbalance = 0 -- capturing the balance at the start of a loss streak during normal betting
+streakStartBalance = 0 -- for capturing the balance at the start of a loss streak during normal betting
+recoverychance = recoverychance -- sets chance during recovery
 recoverystepcount = 0 -- stepcounter for recoverybasebet fibonacci
 recovery = 0 -- flag for turning recovery on/off
 lossStreak = 0 -- counter for loss streaks during normal betting
@@ -82,25 +83,31 @@ end
 
 function dobet()
 	if win then
-		reset = 0
-		if recovery == 0 then -- win, regular roll, reset almost all the things!
-				Streakstartbalance = 0 -- capturing the balance at the start of a loss streak during normal betting
+		if (reset == 1 and recovery == 0) then
+				reset = 0
+				recovery = 1
+			end
+		if (recovery == 0) then -- win, regular roll, reset almost all the things!
 				recoverystepcount = 0
-				recovery = 0
+				streakStartBalance = 0
 				lossStreak = 0
 				recoveryLossStreak = 0
 				stepcount = 0
-				recoverystepcount = 0
-				nextbet = basebet
+				reset = 0
+				chance = basechance
+				nextbet = myfib(stepcount)
 		else
-			if(balance >= streakStartBalance) then -- win, recovery roll, if we have recovered our initial balance reset everything
+			if (balance > streakStartBalance) then -- win, recovery roll, if we have recovered our initial balance reset everything
+				print (balance)
+				print(streakStartBalance)
 				stepcount = 0 
-				Streakstartbalance = 0 
+				streakStartBalance = 0 
 				recoverystepcount = 0 
 				recovery = 0 
 				lossStreak = 0
 				recoveryLossStreak = 0 
-				reset = 0	
+				reset = 0
+				chance = basechance
 				nextbet = basebet
 			else	-- continue recovery if initial streak balance is not recovered
 				lossStreak = 0
@@ -111,41 +118,43 @@ function dobet()
 				if (recoverystepcount < 1) then -- we don't want negative number stepcounts
 					recoverystepcount = 1
 				end
+				chance = recoverychance			
 			nextbet = myrecoveryfib(recoverystepcount)
 			end
 		end
 	else -- lost last roll
-		if (reset == 1) then -- if we're in reset mode bet the reset basebet and reset a bunch of stuff
-			recoverystepcount = 0
-			recovery = 0
-			lossStreak = 0
-			recoveryLossStreak = 0
-			stepcount = 0
-			recoverystepcount = 0
-			nextbet = resetbasebet
-		else
-			if (recovery == 1) then -- if we're in recovery mode 
-				recoveryLossStreak += 1
-				recoverystepcount += 1
-				if (recoveryLossStreak >= recoveryLossStreakMax) then  -- if we reached our recovery loss streak max then give up
-					recovery = 0	
-				end
-				nextbet = myrecoveryfib(recoverystepcount)
-			else -- we're not in reset mode or recovery mode - just a normal loss
-				lossStreak += 1
-				stepcount += 1
-				if(streakStartBalance == 0) then -- Get initial balance at the start of this run
-					streakStartBalance = balance		
-					if (lossStreak >= LossStreakMax) then --We reached our max loss streak settings, time to reset until the loss streak is over
-						reset = 1
-						nexbet = resetbasebet
-					end
-				else
-					nextbet = myfib(stepcount)
-				end
-			end
+	lossStreak += 1
+		if (streakStartBalance == 0) then -- Get initial balance at the start of this run
+                    streakStartBalance = balance
+					print(streakStartBalance)			
 		end
-	end
+		if (lossStreak == LossStreakMax) then -- We reached our max loss streak settings, time to reset until the loss streak is over
+                reset = 1
+                nexbet = resetbasebet       
+        end
+		if (recovery == 1) then -- if we're in recovery mode 
+            lossStreak = 0
+			recoveryLossStreak += 1
+           recoverystepcount += 1
+            chance = recoverychance
+            nextbet = myrecoveryfib(recoverystepcount)
+            if (recoveryLossStreak >= recoveryLossStreakMax) then  -- if we reached our recovery loss streak max then give up
+                recovery = 0
+            end
+        end
+        if (reset == 1) then -- if we're in reset mode bet the reset basebet and reset a bunch of stuff
+            recoverystepcount = 0
+            lossStreak = 0
+            recoveryLossStreak = 0
+            stepcount = 0
+            recoverystepcount = 0
+            nextbet = resetbasebet
+        end
+        if (recovery == 0 and reset == 0) then -- we're in normal mode betting
+            stepcount += 1
+            nextbet = myfib(stepcount)
+        end
+    end
 	
 	sleep(rollDelay)
 end
