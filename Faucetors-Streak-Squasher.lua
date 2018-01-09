@@ -1,23 +1,26 @@
 -- Faucetor's Streak Squasher v.0.0.1
--- Special thanks to CttCJim & Blaksmith - the code is heavily leveraged from their scripts
+-- Special thanks to CttCJim & Blaksmith
+-- the code is heavily leveraged from their scripts they both built - without them this would not have been possible
+-- Additional thanks to Blaksmith for his input & support -without it this script would likely have never seen completion
 -- If you win a bunch with this and...
 -- 	You want to tip Jim BTC:			1JP3tHhToThgS81Wu8P8wD7Ymu29YB3upT
 -- 	You want to tip Blaksmith BTC: 		1BLAKSMTjnME4ZJX7VzzUyEgbQYLShvqgi
 --		You want to tip Faucetor LTC: 	LYEKMdAdAh2BKo2uSxVBoPsax3mdoeKTrL
 
 isTokens = false -- Set to false for satoshi betting, true for tokens 
-basechance = 49.5 	-- sets your chance for placing a bet
-basebet = 1		-- Base bet in whole numbers.
-resetbasebet = 1 -- amount to bet while waiting for win this should pretty much always be 1
-fibstep = .75 -- Stepping for the fibonacci bet increments
-LossStreakMax = 4 -- how many losses in a row before switching to reset mode
+rollDelay = 0.75 -- Sleep period in seconds.  Some sites need this
 
+basechance = 33.3 	-- sets your chance for placing a bet
+basebet = 1		-- Base bet in whole numbers.
+fibstep = .75 -- Stepping for the fibonacci bet increments
+LossStreakMax = 3 -- how many losses in a row before switching to reset mode
+
+recoverybasebet = 2 -- Base bet for loss streak recover in whole numbers; should be more than basebet
 recoverychance = 49.5 -- sets your chance during recovery mode
-recoverybasebet = 1.5 -- Base bet for loss streak recover in whole numbers
-recoveryfibstep = .775 --Stepping for the fibonacci bet increments for recovery mode
+recoveryfibstep = 1 --Stepping for the fibonacci bet increments for recovery mode
 recoveryLossStreakMax = 999 -- sets losses in a row before abandoning recovery mode - can set really high to effectively disable
                           -- Note recovery mode will automatically turn off if successful
-rollDelay = 0.7 -- Sleep period in seconds.  Some sites need this						  
+resetbasebet = 1 -- amount to bet while waiting for win this should always be 1				  
 
 -- Init variables
 nextbet = basebet -- sets your first bet.
@@ -87,7 +90,7 @@ function dobet()
 				reset = 0
 				recovery = 1
 			end
-		if (recovery == 0) then -- win, regular roll, reset almost all the things!
+		if (reset == 0 and recovery == 0) then -- win, regular roll, reset almost all the things!
 				recoverystepcount = 0
 				streakStartBalance = 0
 				lossStreak = 0
@@ -97,9 +100,7 @@ function dobet()
 				chance = basechance
 				nextbet = myfib(stepcount)
 		else
-			if (balance > streakStartBalance) then -- win, recovery roll, if we have recovered our initial balance reset everything
-				print (balance)
-				print(streakStartBalance)
+			if (balance > streakStartBalance) then -- win, recovery roll, if we have recovered our initial balance reset everything				
 				stepcount = 0 
 				streakStartBalance = 0 
 				recoverystepcount = 0 
@@ -125,8 +126,7 @@ function dobet()
 	else -- lost last roll
 	lossStreak += 1
 		if (streakStartBalance == 0) then -- Get initial balance at the start of this run
-                    streakStartBalance = balance
-					print(streakStartBalance)			
+                    streakStartBalance = (balance + previousbet*2 + recoverybasebet*2)	-- adding extra junk on the balance to make tokens actually work with this script
 		end
 		if (lossStreak == LossStreakMax) then -- We reached our max loss streak settings, time to reset until the loss streak is over
                 reset = 1
