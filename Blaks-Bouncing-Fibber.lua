@@ -1,29 +1,40 @@
 -- Blak's Bouncing Fibber (Fibonacci)
 -- constants
 
-minbet = 0.00000001 -- Set this according to the coin / token you are on!
+isTokens = false
 autotune = false -- Set to false to use static settings below
 smoothRecover = false -- set this to false to just stop betting when nextbet is greater than your balance
 
-restTime = 0.0 -- How long to wait in seconds before the next bet.  Some sites need this
+restTime = 0.75 -- How long to wait in seconds before the next bet.  Some sites need this
 			   -- Bitvest setting 0.7 for low bet values
- 
-basebet = 0.00000001
-basechance=7 -- The chance that you would like use.  7 seems to be a good starting point
-housePercent = 1.5 -- Set this according to the site you are on.
+
+minbet = 1 -- Use whole integers
+basebet = 1 -- Use whole integers
+basechance = 7 -- The chance that you would like use.  7 seems to be a good starting point
+housePercent = 1 -- Set this according to the site you are on.
 -- Known site percentages
 -- Freebitco.in = 5%
 -- Bitsler = 1.5%
 -- Bitvest = 1.0% 
 
-fibstep = 0.0925 -- Fibonacci stepping amount
-chanceStep = 0.01 -- Chance stepping amount 
+runPercent = 0.5 -- How much of the pre-roll run to actually do before kicking in fibstep
+-- 1.0 = 100%.  0.95 = 95% etc..
+ 
+fibstep = 0.125 -- Fibonacci stepping amount
+chanceStep = 0.125 -- Chance stepping amount 
 
 enableLogging = true -- Set to false for no logging
 appendlog = true -- This must be set to false for the very first run!
 filename = "bouncer.csv" -- Default to the directory where dicebot is run from.
 tempfile = "tempfile.log" -- You can add an absolute directory if wanted with: C:\directory etc
 rollLog = 50 -- Use 0 for dynamic long streak logging, otherwise put in a value to log after X losing streak
+
+-- Should not need to change anything below this line
+
+if(isTokens == false) then
+	minbet = minbet * 0.00000001
+	basebet = basebet * 0.00000001
+end
 
 local clock = os.clock
 function sleep(n)  -- seconds
@@ -152,7 +163,7 @@ function dobet()
 		lossCount += 1
 		spent += nextbet
 		winAmount = (100 - (100 * (housePercent / 100))) / chance
-		if lossCount > winAmount then
+		if lossCount > (winAmount * runPercent) then
 			stepCount += 1
 			chance += chanceStep
 			nextbet = myfib(stepCount)  
