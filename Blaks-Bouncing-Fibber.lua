@@ -20,7 +20,7 @@ housePercent = 1 -- Set this according to the site you are on.
 runPercent = 0.5 -- How much of the pre-roll run to actually do before kicking in fibstep
 -- 1.0 = 100%.  0.95 = 95% etc..
  
-fibstep = 0.125 -- Fibonacci stepping amount
+fibstep = 0.175 -- Fibonacci stepping amount
 chanceStep = 0.125 -- Chance stepping amount 
 
 enableLogging = true -- Set to false for no logging
