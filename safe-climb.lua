@@ -15,6 +15,7 @@ stopOnLoss = false -- Set this to true to stop, otherwise it will reset, and try
 -- 				Balance = 200000 satoshi, autodivisor = 50000, result = 4
 autotune = false -- Set this to false if you want to use the entries below as your settings
 autoDivisor = 10000 -- Need to tweak this number a little more  Higher = lower bets
+restTime = 0.7 -- How long to wait in seconds before the next bet.  Some sites, like bitvest.io, need this
 
 -- If you do not wish to use the auto tune, you will need to verify these few entries
 basebet = 1 -- enter as a single satoshi value
@@ -67,6 +68,12 @@ for i=0, averageMax do
 	highLowAverage[i] = 0
 end
 
+
+local clock = os.clock
+function sleep(n)  -- seconds
+                local t0 = clock()
+                while clock() - t0 <= n do end
+end
 
 function dobet()
 
@@ -235,6 +242,7 @@ if balance>maxbal then
 	stop()
 end
 
+sleep(restTime)
 
 -- This is needed at the end of the script
 end
