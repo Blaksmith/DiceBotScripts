@@ -5,9 +5,19 @@ isTokens = false
 autotune = false -- Set to false to use static settings below
 smoothRecover = false -- set this to false to just stop betting when nextbet is greater than your balance
 
-restTime = 0.75 -- How long to wait in seconds before the next bet.  Some sites need this
+-- ***************** IMPORTANT TO CHANGE THESE SETTINGS OR YOU WILL TIP ME ***********************
+autotip = true -- If the isTokens is true, tipping is automatically turned off
+-- With auto tip enabled, It will auto tip to your named 
+-- alt account when your balance is above bankroll + tipamount 
+-- On BitVest, minimum 10k BTC, 50k ETH, and 100k LTC
+bankroll = 0.0001 -- Minimum you want to keep rolling with 
+tipamount = 0.0001 -- How much to tip
+receiver = "BlaksBank" -- Who gets the tip?
+
+restTime = 0.0 -- How long to wait in seconds before the next bet.  Some sites need this
 			   -- Bitvest setting 0.7 for low bet values
 
+maxbet = 0 -- raise for higher betting.  10x basebet seems good so far.  Set to 0 to disable
 minbet = 1 -- Use whole integers
 basebet = 1 -- Use whole integers
 basechance = 7 -- The chance that you would like use.  7 seems to be a good starting point
@@ -17,23 +27,24 @@ housePercent = 1 -- Set this according to the site you are on.
 -- Bitsler = 1.5%
 -- Bitvest = 1.0% 
 
-runPercent = 0.5 -- How much of the pre-roll run to actually do before kicking in fibstep
+runPercent = 0.98 -- How much of the pre-roll run to actually do before kicking in fibstep
 -- 1.0 = 100%.  0.95 = 95% etc..
  
 fibstep = 0.175 -- Fibonacci stepping amount
-chanceStep = 0.125 -- Chance stepping amount 
+chanceStep = 0.125 -- Chance stepping amount
 
 enableLogging = true -- Set to false for no logging
 appendlog = true -- This must be set to false for the very first run!
 filename = "bouncer.csv" -- Default to the directory where dicebot is run from.
 tempfile = "tempfile.log" -- You can add an absolute directory if wanted with: C:\directory etc
-rollLog = 50 -- Use 0 for dynamic long streak logging, otherwise put in a value to log after X losing streak
+rollLog = 1 -- Use 0 for dynamic long streak logging, otherwise put in a value to log after X losing streak
 
 -- Should not need to change anything below this line
 
 if(isTokens == false) then
 	minbet = minbet * 0.00000001
 	basebet = basebet * 0.00000001
+	maxbet = maxbet * 0.00000001
 end
 
 local clock = os.clock
@@ -42,6 +53,7 @@ function sleep(n)  -- seconds
 	while clock() - t0 <= n do end
 end
 
+currentStep = 0
 lossCount = 0
 stepCount = 0
 spent = 0
@@ -105,6 +117,47 @@ function dobet()
 
 	autocalc()
 
+	if(autotip == true and isTokens == false) then
+		if(balance > bankroll + tipamount) then
+			tip(receiver, balance - bankroll)
+		end 
+	end
+	if(enableLogging == true) then
+		if(lastBet.Roll >= 99.9 or lastBet.Roll <= 0.10) then
+			tempstr = "year-0month-0day 0hour:0minute:0second, betid, roll, highlo\n"
+			tempstr = string.gsub(tempstr, "year", lastBet.date.year)
+			if (lastBet.date.month >= 10) then tempstr = string.gsub(tempstr, "0month", "month") end 	
+			if (lastBet.date.day >= 10) then tempstr = string.gsub(tempstr, "0day", "day") end 	
+			if (lastBet.date.hour >= 10) then tempstr = string.gsub(tempstr, "0hour", "hour") end 	
+			if (lastBet.date.minute >= 10) then tempstr = string.gsub(tempstr, "0minute", "minute") end 	
+			if (lastBet.date.second >= 10) then tempstr = string.gsub(tempstr, "0second", "second") end 	
+			tempstr = string.gsub(tempstr, "month", lastBet.date.month)			
+			tempstr = string.gsub(tempstr, "day", lastBet.date.day)			
+			tempstr = string.gsub(tempstr, "hour", lastBet.date.hour)			
+			tempstr = string.gsub(tempstr, "minute", lastBet.date.minute)			
+			tempstr = string.gsub(tempstr, "second", lastBet.date.second)
+			tempstr = string.gsub(tempstr, "betid", lastBet.Id)
+			tempstr = string.gsub(tempstr, "roll", lastBet.Roll)
+			if(bethigh == true) then
+				tempstr = string.gsub(tempstr, "highlo", "Betting High")
+			else
+				tempstr = string.gsub(tempstr, "highlo", "Betting Low")
+			end
+			fin = assert(io.open(filename, "r"))
+			content = fin:read("*a")
+			fin:close()
+			
+			fout = assert(io.open(tempfile, "w"))
+			fout:write(content)
+			fout:write(tempstr)
+			-- fout:write(oppositeOut)
+			
+			fout:close()
+			os.remove(filename) 
+			os.rename(tempfile, filename)
+		end
+	end
+	
 	if win then
 		logTest = rollLog
 		if(rollLog == 0) then
@@ -112,7 +165,7 @@ function dobet()
 		end
 		-- print(logTest)
 		if(enableLogging == true and lossCount >= logTest) then
-			tempstr = "year-0month-0day 0hour:0minute:0second, betid, streak, bet, chance, fibstep, spent, winamount, profit\n"
+			tempstr = "year-0month-0day 0hour:0minute:0second, betid, streak, bet, chance, fibstep, spent, winamount, profit, roll, highlo\n"
 			tempstr = string.gsub(tempstr, "year", lastBet.date.year)
 			if (lastBet.date.month >= 10) then tempstr = string.gsub(tempstr, "0month", "month") end 	
 			if (lastBet.date.day >= 10) then tempstr = string.gsub(tempstr, "0day", "day") end 	
@@ -138,6 +191,12 @@ function dobet()
 			profit = lastBet.Profit - spent
 			tempcalc = string.format("%.8f", profit)
 			tempstr = string.gsub(tempstr, "profit", tempcalc)
+			tempstr = string.gsub(tempstr, "roll", lastBet.Roll)
+			if(bethigh == true) then
+				tempstr = string.gsub(tempstr, "highlo", "Betting High")
+			else
+				tempstr = string.gsub(tempstr, "highlo", "Betting Low")
+			end
 			-- print(tempstr)
 
 			fin = assert(io.open(filename, "r"))
@@ -157,7 +216,7 @@ function dobet()
 		chance = basechance
 		lossCount = 0 -- reset
 		nextbet = basebet -- reset
-		stepCount = 0
+		stepCount = 0 -- reset
 		spent = 0
 	else -- if lose
 		lossCount += 1
@@ -168,6 +227,9 @@ function dobet()
 			chance += chanceStep
 			nextbet = myfib(stepCount)  
 		end
+		if nextbet > maxbet and maxbet != 0 then
+			nextbet = maxbet
+		end
 		if nextbet >= balance then -- Keep rolling, without completely busting.  May add flag to disable
 			if(smoothRecover == true) then
 				nextbet = balance / 2 -- Don't completely bust, but try and recover something
@@ -175,7 +237,7 @@ function dobet()
 				print("Balance too low for the bet.  Stopping")
 
 				if(enableLogging == true) then
-					tempstr = "year-0month-0day 0hour:0minute:0second, betid, streak, bet, chance, fibstep, spent, winamount, profit *******LOSING STOP*******\n"
+					tempstr = "year-0month-0day 0hour:0minute:0second, betid, streak, bet, chance, fibstep, spent, winamount, profit, roll, highlo *******LOSING STOP*******\n"
 					tempstr = string.gsub(tempstr, "year", lastBet.date.year)
 					if (lastBet.date.month >= 10) then tempstr = string.gsub(tempstr, "0month", "month") end 	
 					if (lastBet.date.day >= 10) then tempstr = string.gsub(tempstr, "0day", "day") end 	
@@ -201,6 +263,12 @@ function dobet()
 					profit = lastBet.Profit - spent
 					tempcalc = string.format("%.8f", profit)
 					tempstr = string.gsub(tempstr, "profit", tempcalc)
+					tempstr = string.gsub(tempstr, "roll", lastBet.Roll)
+					if(bethigh == true) then
+						tempstr = string.gsub(tempstr, "highlo", "Betting High")
+					else
+						tempstr = string.gsub(tempstr, "highlo", "Betting Low")
+					end
 					-- print(tempstr)
 		
 					fin = assert(io.open(filename, "r"))
