@@ -10,12 +10,13 @@ autotip = true -- If the isTokens is true, tipping is automatically turned off
 -- With auto tip enabled, It will auto tip to your named 
 -- alt account when your balance is above bankroll + tipamount 
 -- On BitVest, minimum 10k BTC, 50k ETH, and 100k LTC
-bankroll = 0.0001 -- Minimum you want to keep rolling with 
+bankroll = 0.0001 -- Minimum you want to keep rolling with.  Set to 0 to use your current balance 
 tipamount = 0.0001 -- How much to tip
-receiver = "BlaksBank" -- Who gets the tip?
+bankappend = 0.10 -- How much of your tip amount to add to your bankroll over time in %.  0.10 = 10% Set to 0 for no addition to the bankroll 
+receiver = "BlaksBank" -- Who gets the tip? **** CHANGE THIS ****
 
 restTime = 0.0 -- How long to wait in seconds before the next bet.  Some sites need this
-			   -- Bitvest setting 0.7 for low bet values
+			   -- Bitvest setting 0.75 for low bet values
 
 maxbet = 0 -- raise for higher betting.  10x basebet seems good so far.  Set to 0 to disable
 minbet = 1 -- Use whole integers
@@ -40,6 +41,10 @@ tempfile = "tempfile.log" -- You can add an absolute directory if wanted with: C
 rollLog = 1 -- Use 0 for dynamic long streak logging, otherwise put in a value to log after X losing streak
 
 -- Should not need to change anything below this line
+
+if(bankroll == 0) then
+	bankroll = balance
+end
 
 if(isTokens == false) then
 	minbet = minbet * 0.00000001
@@ -118,8 +123,12 @@ function dobet()
 	autocalc()
 
 	if(autotip == true and isTokens == false) then
-		if(balance > bankroll + tipamount) then
-			tip(receiver, balance - bankroll)
+		if(balance > bankroll + tipamount + (tipamount * bankappend)) then
+			tip(receiver, balance - bankroll - (tipamount * bankappend))
+			bankroll += (tipamount * bankappend)
+			tempstr = "New Bankroll: banker"
+			tempstr = string.gsub(tempstr, "banker", bankroll)
+			print(tempstr)
 		end 
 	end
 	if(enableLogging == true) then
