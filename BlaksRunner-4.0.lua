@@ -45,12 +45,12 @@ chanceInc = 0.0010 -- How much to increase chance on a bad run
 incDivisor = 1000000 -- When to start raising winMult (12.5 million seems safe so far)
 siteMaxProfit = 0.00000000 -- Set to the max profit of the site.  Set to 0 to disable.  This will make sure the profit of the bet will never go above this value if set
 -- ***************** IMPORTANT TO CHANGE THESE SETTINGS BEFORE ENABLING OR YOU WILL TIP ME ***********************
-autotip = false -- If the isTokens is true, tipping is automatically turned off
+autotip = true -- If the isTokens is true, tipping is automatically turned off
 -- With auto tip enabled, It will auto tip to your named 
 -- alt account when your balance is above bankroll + tipamount 
 -- On BitVest, minimum 10k BTC, 50k ETH, and 100k LTC
 bankroll = 0 -- Minimum you want to keep rolling with.  Set to 0 to use your current balance 
-tipamount = 0.0001 -- How much to tip
+tipamount = 0.01 -- How much to tip
 bankappend = 0.10 -- How much of your tip amount to add to your bankroll over time in %.  0.10 = 10% Set to 0 for no addition to the bankroll 
 receiver = "BlaksBank" -- Who gets the tip? **** CHANGE THIS ****
 -- ^^^^^^ CHANGE THE ABOVE VALUE!!!!! ^^^^^^
@@ -60,7 +60,7 @@ restTime = 0.0 -- How long to wait in seconds before the next bet.  Some sites n
 
 
 
-maxWinMult = 256 -- Max multiplier to hit.  siteMaxProfit can lower this value Set to 0 to disable
+maxWinMult = 512 -- Max multiplier to hit.  siteMaxProfit can lower this value Set to 0 to disable
 
 housePercent = 1 -- Set this according to the site you are on.
 -- Known site percentages
@@ -148,7 +148,7 @@ end
 
 function calcChance()
 	if(oldBaseChance == 0) then oldBaseChance = basechance end
-		if(win) then
+	if(win) then
 		if(lastBet.Roll >= 50) then 
 			target = 100 - lastBet.Roll
 		else
@@ -191,11 +191,11 @@ function autoTune()
 	
 	tempcalc = string.format("%.8f", needed)
 	tempstr = string.gsub(tempstr, "amtNeeded", tempcalc)
-	-- print(string.format("%.8f", needed))
+	-- print(string.format("Needed: %.8f", needed))
 	nextMult = needed / winAmount
 	tempcalc = string.format("%.8f", nextMult)
 	tempstr = string.gsub(tempstr, "nextmult", tempcalc)
-	-- print(string.format("%.8f", nextMult))
+	-- print(string.format("nextMult: %.8f", nextMult))
 	if(nextMult < 1) then nextMult = 1 end
 	nextbet = basebet * nextMult
 	if((winAmount * nextbet) - nextbet > siteMaxProfit and siteMaxProfit != 0) then

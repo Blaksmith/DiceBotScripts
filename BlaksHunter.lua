@@ -196,7 +196,7 @@ function updateRoundStats()
 end
 
 function logWin()
-	tempstr = "year-0month-0day 0hour:0minute:0second, betid, streak, bet, chance, spent, winamount, profit, roll, highlo\n"
+	tempstr = "year-0month-0day 0hour:0minute:0second, betid, streak, bet, chance, spent, winamount, profit, roll, highlo "
 	tempstr = string.gsub(tempstr, "year", lastBet.date.year)
 	if (lastBet.date.month >= 10) then tempstr = string.gsub(tempstr, "0month", "month") end 	
 	if (lastBet.date.day >= 10) then tempstr = string.gsub(tempstr, "0day", "day") end 	
@@ -231,6 +231,15 @@ function logWin()
 		tempstr = string.gsub(tempstr, "highlo", "Betting Low")
 	end
 
+	tipstr = ""
+	if(autotip == true and isTokens == false and bankroll != 0) then
+		tipvalue = bankroll + tipamount + (tipamount * bankappend)
+		pct = ((balance - bankroll) / (tipvalue - bankroll)) * 100
+		if(win and isHunting == true) then
+			tipstr = string.format(" ... Percent towards tip: %.2f to %s! ... Total Tipped: %.8f\n", pct, receiver, totalTipped)
+		end
+	end
+
 	fin = assert(io.open(filename, "r"))
 	content = fin:read("*a")
 	fin:close()
@@ -238,6 +247,11 @@ function logWin()
 	fout = assert(io.open(tempfile, "w"))
 	fout:write(content)
 	fout:write(tempstr)
+	if(tipstr != "") then
+		fout:write(tipstr)
+	else
+		fout:write("\n")
+	end
 	
 	fout:close()
 	os.remove(filename) 

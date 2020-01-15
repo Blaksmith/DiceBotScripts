@@ -1,4 +1,4 @@
--- Blak's Runner
+-- Blak's Runner y57AwktWTk6E0Yg9PIgY
 -- Constant Profit on every win with tipping and logging
 --
 -- On average, this script will profit around 100k per 24 hours at winMult 1
@@ -44,9 +44,9 @@ receiver = "BlaksBank" -- Who gets the tip? **** CHANGE THIS ****
 restTime = 0.0 -- How long to wait in seconds before the next bet.  Some sites need this
 			   -- Bitvest setting 0.75 for low bet values
 
-basechance = 1.2345 -- The starting chance that you would like use. 
+basechance = 3.1415 -- The starting chance that you would like use. 
 
-incDivisor = 1000000 -- When to start raising winMult (1 million seems safe so far)
+incDivisor = 5000000 -- When to start raising winMult (5 million seems safe so far)
 
 housePercent = 1 -- Set this according to the site you are on.
 -- Known site percentages

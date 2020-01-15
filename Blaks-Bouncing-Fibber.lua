@@ -28,7 +28,7 @@ housePercent = 1 -- Set this according to the site you are on.
 -- Bitsler = 1.5%
 -- Bitvest = 1.0% 
 
-runPercent = 0.98 -- How much of the pre-roll run to actually do before kicking in fibstep
+runPercent = 0.80 -- How much of the pre-roll run to actually do before kicking in fibstep
 -- 1.0 = 100%.  0.95 = 95% etc..
  
 fibstep = 0.175 -- Fibonacci stepping amount
