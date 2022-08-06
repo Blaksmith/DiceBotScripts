@@ -1,4 +1,4 @@
--- Blak's Runner V4.0
+-- Blak's Runner V5.0
 -- Constant Profit on every win with tipping and logging
 --
 -- This script tries to win at least "Payout X Amount" over what has been spent for every win.
@@ -78,7 +78,7 @@ tippedOut = 0
 -- *************** This will create a log file in the directory where dicebot is run from! *****************
 
 enableLogging = true -- Set to false for no logging
-appendlog = true -- This must be set to false for the very first run!
+appendlog = false -- This must be set to false for the very first run!
 filename = "martingale.csv" -- Default to the directory where dicebot is run from.
 tempfile = "tempfile.log" -- You can add an absolute directory if wanted with: C:\directory etc
 rollLog = 25 -- Use 0 for dynamic long streak logging, otherwise put in a value to log after X losing streak
